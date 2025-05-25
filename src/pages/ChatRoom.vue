@@ -127,17 +127,35 @@
           console.error('Gagal ambil riwayat pesan:', e);
         }
       },
-      sendMessage () {
+      // sendMessage () {
+      //   const selectedUser = JSON.parse(localStorage.getItem('selectedUser'));
+      //   if (!this.channel || !this.message.trim() || !selectedUser) return;
+
+      //   this.channel.send({
+      //     action: 'receive',
+      //     user_id: selectedUser.id,
+      //     content: this.message.trim(),
+      //   });
+
+      //   this.message = ''; // reset input setelah kirim
+      // },
+      async sendMessage () {
         const selectedUser = JSON.parse(localStorage.getItem('selectedUser'));
-        if (!this.channel || !this.message.trim() || !selectedUser) return;
+        console.log('sendMessage called', selectedUser.id, this.id, this.message);
+        if (!selectedUser || !this.id ) return;
 
-        this.channel.send({
-          action: 'receive',
-          user_id: selectedUser.id,
-          content: this.message.trim(),
-        });
+        try {
+          const res = await this.$axios.post('/messages', {
+            room_id: this.id,
+            user_id: selectedUser.id,
+            content: this.message.trim(),
+          });
 
-        this.message = ''; // reset input setelah kirim
+          // Jika server langsung broadcast ke ActionCable, maka tidak perlu tambah manual ke `this.messages`
+          this.message = '';
+        } catch (error) {
+          console.error('Gagal mengirim pesan:', error);
+        }
       },
     },
   };
