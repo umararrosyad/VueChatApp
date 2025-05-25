@@ -78,7 +78,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/cable': {
-        target: 'ws://localhost:3000',
+        target: 'wss://rubychatappbe-production.up.railway.app',
         ws: true,
         changeOrigin: true,
       },

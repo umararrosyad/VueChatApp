@@ -100,7 +100,7 @@
       const selectedUser = JSON.parse(localStorage.getItem('selectedUser'));
       if (!selectedUser) return;
 
-      this.cable = createConsumer('/cable'); // sesuaikan URL jika production
+      this.cable = createConsumer('wss://rubychatappbe-production.up.railway.app/cable'); // sesuaikan URL jika production
 
       this.channel = this.cable.subscriptions.create(
         { channel: 'ChatChannel', room_id: this.id },
@@ -127,36 +127,38 @@
           console.error('Gagal ambil riwayat pesan:', e);
         }
       },
-      // sendMessage () {
-      //   const selectedUser = JSON.parse(localStorage.getItem('selectedUser'));
-      //   if (!this.channel || !this.message.trim() || !selectedUser) return;
-
-      //   this.channel.send({
-      //     action: 'receive',
-      //     user_id: selectedUser.id,
-      //     content: this.message.trim(),
-      //   });
-
-      //   this.message = ''; // reset input setelah kirim
-      // },
-      async sendMessage () {
+      sendMessage () {
         const selectedUser = JSON.parse(localStorage.getItem('selectedUser'));
-        console.log('sendMessage called', selectedUser.id, this.id, this.message);
-        if (!selectedUser || !this.id ) return;
+        if (!this.channel || !this.message.trim() || !selectedUser) return;
 
-        try {
-          const res = await this.$axios.post('/messages', {
-            room_id: this.id,
-            user_id: selectedUser.id,
-            content: this.message.trim(),
-          });
+        this.channel.send({
+          action: 'receive',
+          room_id: this.id,
+          user_id: selectedUser.id,
+          content: this.message.trim(),
+        });
 
-          // Jika server langsung broadcast ke ActionCable, maka tidak perlu tambah manual ke `this.messages`
-          this.message = '';
-        } catch (error) {
-          console.error('Gagal mengirim pesan:', error);
-        }
+        this.message = ''; // reset input setelah kirim
       },
+      // async sendMessage () {
+      //   const selectedUser = JSON.parse(localStorage.getItem('selectedUser'));
+      //   console.log('sendMessage called', selectedUser.id, this.id, this.message);
+      //   if (!selectedUser || !this.id ) return;
+
+      //   try {
+      //     const res = await this.$axios.post('/messages', {
+      //       room_id: this.id,
+      //       user_id: selectedUser.id,
+      //       user_nickname: selectedUser.nickname,
+      //       content: this.message.trim(),
+      //     });
+
+      //     // Jika server langsung broadcast ke ActionCable, maka tidak perlu tambah manual ke `this.messages`
+      //     this.message = '';
+      //   } catch (error) {
+      //     console.error('Gagal mengirim pesan:', error);
+      //   }
+      // },
     },
   };
 </script>
